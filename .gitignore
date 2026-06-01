@@ -1,0 +1,12 @@
+# Archivos temporales y de depuración
+debug_cols.py
+test_connection.py
+__pycache__/
+*.pyc
+*.pyo
+
+# Datos fuente (no subir al repo público)
+txt/
+
+# Variables de entorno
+.env
