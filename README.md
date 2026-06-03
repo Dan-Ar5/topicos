@@ -5,11 +5,11 @@ Integra ventas de dos canales (Web y Catálogo) en un esquema Star de Data Wareh
 
 ## Integrantes
 
-| Nombre | Rol |
-|--------|-----|
-| Mabel | Implementación del Pipeline ETL, GitHub, Diagrama |
-| Paúl | Análisis Exploratorio / EDA |
-| Gersson| Diseño del esquema DW, informe |
+| Nombre |
+|--------|
+| Choquecondo Aspilcueta Daniela | 
+| Contreras Huamani Paul Michaell | 
+| Huichi Santander Gersson André | 
 
 ## Estructura del repositorio
 
