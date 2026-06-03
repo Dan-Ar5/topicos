@@ -54,9 +54,6 @@ DB_CONFIG = {
 ```bash
 # Correr el pipeline completo
 python main.py
-
-# Generar el diagrama ETL (guarda etl_pipeline_diagram.png)
-python diagrama_etl.py
 ```
 
 ## Flujo del Pipeline ETL
