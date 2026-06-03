@@ -23,7 +23,6 @@ TOPICOS/
 ├── transform.py             # Paso 2 – Limpieza e integración
 ├── load.py                  # Paso 3 – Carga en PostgreSQL
 ├── main.py                  # Orquestador principal
-├── diagrama_etl.py          # Genera el diagrama visual del pipeline
 └── README.md
 ```
 
