@@ -1,19 +1,9 @@
-"""
-load.py — Módulo de carga del pipeline ETL.
-Inserta los datos transformados en el esquema star de PostgreSQL.
-Usa INSERT ... ON CONFLICT DO NOTHING para garantizar idempotencia.
-"""
-
 import psycopg2
 import psycopg2.extras
 import pandas as pd
 from typing import Dict
 
-
-# ─────────────────────────────────────────────
 # Helpers de conexión
-# ─────────────────────────────────────────────
-
 def _get_connection(db_config: Dict):
     """Crea y retorna una conexión psycopg2 a partir del diccionario de config."""
     return psycopg2.connect(
@@ -24,17 +14,8 @@ def _get_connection(db_config: Dict):
         password=db_config['password'],
     )
 
-
-# ─────────────────────────────────────────────
 # Carga de dimensiones
-# ─────────────────────────────────────────────
-
 def _load_dim_product(cur, df_products: pd.DataFrame):
-    """
-    Inserta productos en dim_product.
-
-    Usa pcode como clave de conflicto para idempotencia.
-    """
     sql = """
         INSERT INTO dim_product (pcode, type, description, price, cost, supplier)
         VALUES (%s, %s, %s, %s, %s, %s)
@@ -55,9 +36,6 @@ def _load_dim_product(cur, df_products: pd.DataFrame):
 
 
 def _load_dim_date(cur, df_orders: pd.DataFrame):
-    """
-    Inserta fechas únicas en dim_date derivando sus atributos de calendario.
-    """
     sql = """
         INSERT INTO dim_date (full_date, day, month, year, quarter, month_name, weekday)
         VALUES (%s, %s, %s, %s, %s, %s, %s)
@@ -81,11 +59,6 @@ def _load_dim_date(cur, df_orders: pd.DataFrame):
 
 
 def _load_dim_customer(cur, df_orders: pd.DataFrame):
-    """
-    Inserta clientes únicos en dim_customer.
-
-    Usa customer_name como clave de conflicto para idempotencia.
-    """
     sql = """
         INSERT INTO dim_customer (customer_name)
         VALUES (%s)
@@ -98,11 +71,6 @@ def _load_dim_customer(cur, df_orders: pd.DataFrame):
 
 
 def _get_channel_map(cur) -> Dict[str, int]:
-    """
-    Obtiene el mapa {channel_name → channel_id} de la tabla dim_channel.
-
-    La tabla ya debe contener las filas 'WEB' y 'CATALOG'.
-    """
     cur.execute("SELECT channel_id, channel_name FROM dim_channel;")
     return {row[1]: row[0] for row in cur.fetchall()}
 
@@ -124,19 +92,10 @@ def _get_product_map(cur) -> Dict[str, int]:
     cur.execute("SELECT product_id, pcode FROM dim_product;")
     return {row[1]: row[0] for row in cur.fetchall()}
 
-
-# ─────────────────────────────────────────────
 # Carga de fact_sales
-# ─────────────────────────────────────────────
-
 def _load_fact_sales(cur, df_fact: pd.DataFrame,
                      date_map: Dict, customer_map: Dict,
                      product_map: Dict, channel_map: Dict):
-    """
-    Inserta filas en fact_sales resolviendo todas las FK.
-
-    Filas cuya FK no pueda resolverse se omiten con advertencia.
-    """
     sql = """
         INSERT INTO fact_sales
             (date_id, customer_id, product_id, channel_id,
@@ -178,34 +137,10 @@ def _load_fact_sales(cur, df_fact: pd.DataFrame,
     psycopg2.extras.execute_batch(cur, sql, rows)
     print(f"  [load] fact_sales   : {len(rows):>6} filas insertadas")
 
-
-# ─────────────────────────────────────────────
 # Función pública principal
-# ─────────────────────────────────────────────
-
 def load_all(df_orders: pd.DataFrame, df_products: pd.DataFrame,
              df_fact: pd.DataFrame, db_config: Dict):
-    """
-    Carga todos los DataFrames en el esquema star de PostgreSQL.
-
-    Orden de carga respetando claves foráneas:
-        1. dim_product
-        2. dim_date
-        3. dim_customer
-        4. dim_channel  (solo lectura; ya existe en BD)
-        5. fact_sales
-
-    Parámetros
-    ----------
-    df_orders : pd.DataFrame
-        Órdenes limpias e integradas.
-    df_products : pd.DataFrame
-        Productos limpios.
-    df_fact : pd.DataFrame
-        DataFrame de hechos construido por build_fact().
-    db_config : dict
-        Claves requeridas: host, port, dbname, user, password.
-    """
+                 
     conn = None
     try:
         conn = _get_connection(db_config)
@@ -242,11 +177,7 @@ def load_all(df_orders: pd.DataFrame, df_products: pd.DataFrame,
         if conn:
             conn.close()
 
-
-# ─────────────────────────────────────────────
 # Utilitarios internos
-# ─────────────────────────────────────────────
-
 def _to_float(value):
     """Convierte un valor a float; retorna None si no es convertible."""
     try:
