@@ -1,8 +1,3 @@
-"""
-main.py - Orquestador del pipeline ETL.
-Ejecuta en orden: Extraccion -> Transformacion -> Carga.
-"""
-
 import sys
 import os
 
@@ -10,11 +5,7 @@ from extract import extract_all
 from transform import clean_orders, clean_products, integrate_orders, build_fact
 from load import load_all
 
-
-# ─────────────────────────────────────────────
 # Configuración
-# ─────────────────────────────────────────────
-
 DB_CONFIG = {
     'host':     'localhost',
     'port':     5432,
@@ -29,15 +20,8 @@ PATH_CATALOG    = os.path.join(BASE_DIR, 'txt', 'Catalog_Orders.txt')
 PATH_WEB        = os.path.join(BASE_DIR, 'txt', 'Web_orders.txt')
 PATH_PRODUCTS   = os.path.join(BASE_DIR, 'txt', 'products.txt')
 
-
-# ─────────────────────────────────────────────
 # Pipeline principal
-# ─────────────────────────────────────────────
-
 def run_pipeline():
-    """Ejecuta el pipeline ETL completo: extract → transform → load."""
-
-    # ── Paso 1: Extracción ──────────────────────
     print("\n== PASO 1: EXTRACCION ==")
     try:
         df_catalog_raw, df_web_raw, df_products_raw = extract_all(
